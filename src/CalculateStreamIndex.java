@@ -1,10 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author lipanpan
@@ -14,9 +11,9 @@ public class CalculateStreamIndex {
     private static final String FILE_PATH="data/1701_2019-01.csv";
     private static final int INTERVAL=10;
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void streamProcess(String filename, int interval) throws IOException, ParseException {
         Long startTime = System.currentTimeMillis();
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(FILE_PATH));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
         String line = null;
         System.out.println(line = bufferedReader.readLine());
         List<Index> indices = new ArrayList<>();
@@ -61,7 +58,7 @@ public class CalculateStreamIndex {
                     originData.set(i,data);
                     if (flag==2)
                     {
-                       originSpeed.set(i,speed);
+                        originSpeed.set(i,speed);
                     }
                     if (flag>2){
                         double acceleration = (speed-originSpeed.get(i))/during*1000;
@@ -72,11 +69,10 @@ public class CalculateStreamIndex {
             }
             lastSTime=format.parse(item[0]).getTime();
         }
-        /*
         for (int i=1;i<length;i++){
-            indices.get(i).initHistogram(INTERVAL);
+            indices.get(i).initHistogram(interval);
         }
-        BufferedReader reader1 = new BufferedReader(new FileReader(FILE_PATH));
+        BufferedReader reader1 = new BufferedReader(new FileReader(filename));
         reader1.readLine();
         String line1 = null;
         flag=0;
@@ -119,11 +115,39 @@ public class CalculateStreamIndex {
             }
             lastSTime=format.parse(item[0]).getTime();
         }
-        */
+        System.out.println("count | mean | min | max | std | zero");
         for (int i=1;i<length;i++) {
             indices.get(i).print();
         }
         Long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime+"ms");
+    }
+
+    public static void main(String[] args) throws IOException, ParseException {
+        getDataForBatch(FILE_PATH);
+    }
+
+    private static String getDataForBatch(String filename) throws IOException, ParseException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
+        String newFileName = filename.substring(0,filename.lastIndexOf('/')+1)+"new"+filename.substring(filename.lastIndexOf('/')+1);
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(newFileName));
+        String line;
+        bufferedWriter.write(line=bufferedReader.readLine()+"\n");
+        Map<Long,String> treeMap = new TreeMap<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        while ((line=bufferedReader.readLine())!=null){
+            String[] items = line.split(",");
+            //System.out.println(items[0]);
+            Long itemTime = format.parse(items[0]).getTime();
+            treeMap.put(itemTime,line);
+        }
+        for (Map.Entry<Long, String> longStringEntry : treeMap.entrySet()) {
+            Map.Entry entry = (Map.Entry) longStringEntry;
+            bufferedWriter.write(entry.getValue() + "\n");
+        }
+        bufferedWriter.flush();
+        bufferedReader.close();
+        bufferedWriter.close();
+        return newFileName;
     }
 }
