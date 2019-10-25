@@ -8,8 +8,9 @@ import java.util.*;
  */
 public class CalculateStreamIndex {
 
-    private static final String FILE_PATH="data/1701_2019-01.csv";
+    private static final String FILE_PATH="data/test.csv";
     private static final int INTERVAL=10;
+    private static final int SIGMA=3;
 
     public static void streamProcess(String filename, int interval) throws IOException, ParseException {
         Long startTime = System.currentTimeMillis();
@@ -25,7 +26,7 @@ public class CalculateStreamIndex {
         //speed accelerate need data
         long lastSTime=0,flag=0;
         List<Double> originData = new ArrayList<>(), originSpeed = new ArrayList<>();
-        for (int i=0;i<length;i++)
+        for (int i=0;i<=length;i++)
         {
             originData.add(0.0);
             originSpeed.add(0.0);
@@ -52,6 +53,11 @@ public class CalculateStreamIndex {
                     {
                         continue;
                     }
+                    //calculate variation
+                    double variation = data-originData.get(i);
+                    indices.get(i).updateVariation(variation);
+                    //calculate interval
+                    indices.get(i).updateInterval(Long.valueOf(during).doubleValue());
                     //calculate speed
                     double speed = (data-originData.get(i))/during*1000;
                     indices.get(i).updateSpeed(speed);
@@ -61,7 +67,7 @@ public class CalculateStreamIndex {
                         originSpeed.set(i,speed);
                     }
                     if (flag>2){
-                        double acceleration = (speed-originSpeed.get(i))/during*1000;
+                        double acceleration = (speed-originSpeed.get(i));
                         indices.get(i).updateAcceleration(acceleration);
                         originSpeed.set(i,speed);
                     }
@@ -84,7 +90,7 @@ public class CalculateStreamIndex {
             }
             for (int i=1;i<length;i++){
                 double data = Double.parseDouble(item[i]);
-                indices.get(i).updateOutlier(data);
+                indices.get(i).updateOutlier(data,SIGMA);
                 indices.get(i).updateHistogram(data);
                 if (flag==1)
                 {
@@ -97,8 +103,13 @@ public class CalculateStreamIndex {
                     if (during==0) {
                         continue;
                     }
+                    double variation = data-originData.get(i);
+                    indices.get(i).updateVariationOutlier(variation,SIGMA);
+                    indices.get(i).updateVariationHistogram(variation);
+                    indices.get(i).updateIntervalOutlier(Long.valueOf(during).doubleValue(),SIGMA);
+                    indices.get(i).updateIntervalHistogram(Long.valueOf(during).doubleValue());
                     double speed = (data-originData.get(i))/during*1000;
-                    indices.get(i).updateSpeedOutlier(speed);
+                    indices.get(i).updateSpeedOutlier(speed,SIGMA);
                     indices.get(i).updateSpeedHistogram(speed);
                     originData.set(i,data);
                     if (flag==2)
@@ -106,8 +117,8 @@ public class CalculateStreamIndex {
                         originSpeed.set(i,speed);
                     }
                     if (flag>2){
-                        double acceleration = (speed-originSpeed.get(i))/during*1000;
-                        indices.get(i).updateAccelerationOutlier(acceleration);
+                        double acceleration = (speed-originSpeed.get(i));
+                        indices.get(i).updateAccelerationOutlier(acceleration,SIGMA);
                         indices.get(i).updateAccelerationHistogram(acceleration);
                         originSpeed.set(i,speed);
                     }
@@ -115,7 +126,7 @@ public class CalculateStreamIndex {
             }
             lastSTime=format.parse(item[0]).getTime();
         }
-        System.out.println("count | mean | min | max | std | zero");
+        System.out.println("count | mean | min | max | std | zero | outlier");
         for (int i=1;i<length;i++) {
             indices.get(i).print();
         }
@@ -124,7 +135,7 @@ public class CalculateStreamIndex {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        getDataForBatch(FILE_PATH);
+        streamProcess(FILE_PATH,INTERVAL);
     }
 
     private static String getDataForBatch(String filename) throws IOException, ParseException {
