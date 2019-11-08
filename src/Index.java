@@ -151,6 +151,22 @@ public class Index {
         variationHistogram.print();
         intervalHistogram.print();
         accelerationHistogram.print();
+
+        outlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        speedOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        variationOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        intervalOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        accelerationOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
     }
 
     public void initHistogram(int interval){
