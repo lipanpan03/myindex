@@ -1,4 +1,7 @@
 import java.awt.font.TextHitInfo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Index {
     private double count;
@@ -41,6 +44,17 @@ public class Index {
     private Histogram variationHistogram;
     private Histogram intervalHistogram;
     private Histogram accelerationHistogram;
+
+    private Map<String,Double> outlierMap = new HashMap<>();
+    private Map<String,Double> speedOutlierMap = new HashMap<>();
+    private Map<String,Double> variationOutlierMap = new HashMap<>();
+    private Map<String,Double> intervalOutlierMap = new HashMap<>();
+    private Map<String,Double> accelerationOutlierMap = new HashMap<>();
+    private Map<String,ArrayList<Double>> neighbor = new HashMap<>();
+    private Map<String,ArrayList<Double>> speedNeighbor = new HashMap<>();
+    private Map<String,ArrayList<Double>> variationNeighbor = new HashMap<>();
+    private Map<String,ArrayList<Double>> intervalNeighbor = new HashMap<>();
+    private Map<String,ArrayList<Double>> accelerationNeighbor = new HashMap<>();
 
     public Index() {
         count=0;
@@ -137,6 +151,22 @@ public class Index {
         variationHistogram.print();
         intervalHistogram.print();
         accelerationHistogram.print();
+
+        outlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        speedOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        variationOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        intervalOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
+        accelerationOutlierMap.forEach((key,value)->{
+            System.out.println(key+":"+value);
+        });
     }
 
     public void initHistogram(int interval){
@@ -147,29 +177,39 @@ public class Index {
         this.accelerationHistogram = new Histogram(this.accelerationMin,this.accelerationMax,interval);
     }
 
-    public void updateOutlier(double data, int sigma)
+    public void updateOutlier(String time,double data, int sigma)
     {
         this.outlier+=Math.abs(data-this.mean)/this.std>sigma?1:0;
+        if (Math.abs(data-this.mean)/this.std>sigma)
+            outlierMap.put(time,data);
     }
 
-    public void updateSpeedOutlier(double data, int sigma)
+    public void updateSpeedOutlier(String time,double data, int sigma)
     {
         this.speedOutlier+=Math.abs(data-this.speedMean)/this.speedStd>sigma?1:0;
+        if (Math.abs(data-this.speedMean)/this.speedStd>sigma)
+            speedOutlierMap.put(time,data);
     }
 
-    public void updateVariationOutlier(double data, int sigma)
+    public void updateVariationOutlier(String time,double data, int sigma)
     {
         this.variationOutlier+=Math.abs(data-this.variationMean)/this.variationStd>sigma?1:0;
+        if (Math.abs(data-this.variationMean)/this.variationStd>sigma)
+            variationOutlierMap.put(time,data);
     }
 
-    public void updateIntervalOutlier(double data, int sigma)
+    public void updateIntervalOutlier(String time,double data, int sigma)
     {
         this.intervalOutlier+=Math.abs(data-this.intervalMean)/this.intervalStd>sigma?1:0;
+        if (Math.abs(data-this.intervalMean)/this.intervalStd>sigma)
+            intervalOutlierMap.put(time,data);
     }
 
-    public void updateAccelerationOutlier(double data, int sigma)
+    public void updateAccelerationOutlier(String time,double data, int sigma)
     {
         this.accelerationOutlier+=Math.abs(data-this.accelerationMean)/this.accelerationStd>sigma?1:0;
+        if (Math.abs(data-this.accelerationMean)/this.accelerationStd>sigma)
+            accelerationOutlierMap.put(time,data);
     }
 
     public void updateHistogram(double data){
