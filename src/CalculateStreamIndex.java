@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class CalculateStreamIndex {
 
-    private static final String FILE_PATH="data/test.csv";
+    private static final String FILE_PATH="data/1701_2019-01.csv";
     private static final int INTERVAL=10;
     private static final int SIGMA=3;
 
