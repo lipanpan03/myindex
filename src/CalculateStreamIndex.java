@@ -90,7 +90,7 @@ public class CalculateStreamIndex {
             }
             for (int i=1;i<length;i++){
                 double data = Double.parseDouble(item[i]);
-                indices.get(i).updateOutlier(data,SIGMA);
+                indices.get(i).updateOutlier(item[0],data,SIGMA);
                 indices.get(i).updateHistogram(data);
                 if (flag==1)
                 {
@@ -104,12 +104,12 @@ public class CalculateStreamIndex {
                         continue;
                     }
                     double variation = data-originData.get(i);
-                    indices.get(i).updateVariationOutlier(variation,SIGMA);
+                    indices.get(i).updateVariationOutlier(item[0],variation,SIGMA);
                     indices.get(i).updateVariationHistogram(variation);
-                    indices.get(i).updateIntervalOutlier(Long.valueOf(during).doubleValue(),SIGMA);
+                    indices.get(i).updateIntervalOutlier(item[0],Long.valueOf(during).doubleValue(),SIGMA);
                     indices.get(i).updateIntervalHistogram(Long.valueOf(during).doubleValue());
                     double speed = (data-originData.get(i))/during*1000;
-                    indices.get(i).updateSpeedOutlier(speed,SIGMA);
+                    indices.get(i).updateSpeedOutlier(item[0],speed,SIGMA);
                     indices.get(i).updateSpeedHistogram(speed);
                     originData.set(i,data);
                     if (flag==2)
@@ -118,7 +118,7 @@ public class CalculateStreamIndex {
                     }
                     if (flag>2){
                         double acceleration = (speed-originSpeed.get(i));
-                        indices.get(i).updateAccelerationOutlier(acceleration,SIGMA);
+                        indices.get(i).updateAccelerationOutlier(item[0],acceleration,SIGMA);
                         indices.get(i).updateAccelerationHistogram(acceleration);
                         originSpeed.set(i,speed);
                     }
