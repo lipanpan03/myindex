@@ -1,6 +1,6 @@
-import java.awt.font.TextHitInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class Index {
@@ -50,11 +50,11 @@ public class Index {
     private Map<String,Double> variationOutlierMap = new HashMap<>();
     private Map<String,Double> intervalOutlierMap = new HashMap<>();
     private Map<String,Double> accelerationOutlierMap = new HashMap<>();
-    private Map<String,ArrayList<Double>> neighbor = new HashMap<>();
-    private Map<String,ArrayList<Double>> speedNeighbor = new HashMap<>();
-    private Map<String,ArrayList<Double>> variationNeighbor = new HashMap<>();
-    private Map<String,ArrayList<Double>> intervalNeighbor = new HashMap<>();
-    private Map<String,ArrayList<Double>> accelerationNeighbor = new HashMap<>();
+    private Map<String, LinkedList<Double>> neighbor = new HashMap<>();
+    private Map<String, LinkedList<Double>> speedNeighbor = new HashMap<>();
+    private Map<String, LinkedList<Double>> variationNeighbor = new HashMap<>();
+    private Map<String, LinkedList<Double>> intervalNeighbor = new HashMap<>();
+    private Map<String, LinkedList<Double>> accelerationNeighbor = new HashMap<>();
 
     public Index() {
         count=0;
@@ -152,21 +152,27 @@ public class Index {
         intervalHistogram.print();
         accelerationHistogram.print();
 
-        outlierMap.forEach((key,value)->{
-            System.out.println(key+":"+value);
-        });
-        speedOutlierMap.forEach((key,value)->{
-            System.out.println(key+":"+value);
-        });
-        variationOutlierMap.forEach((key,value)->{
-            System.out.println(key+":"+value);
-        });
-        intervalOutlierMap.forEach((key,value)->{
-            System.out.println(key+":"+value);
-        });
-        accelerationOutlierMap.forEach((key,value)->{
-            System.out.println(key+":"+value);
-        });
+//        outlierMap.forEach((key,value)->{
+//            System.out.println(key+":"+value);
+//        });
+//        speedOutlierMap.forEach((key,value)->{
+//            System.out.println(key+":"+value);
+//        });
+//        variationOutlierMap.forEach((key,value)->{
+//            System.out.println(key+":"+value);
+//        });
+//        intervalOutlierMap.forEach((key,value)->{
+//            System.out.println(key+":"+value);
+//        });
+//        accelerationOutlierMap.forEach((key,value)->{
+//            System.out.println(key+":"+value);
+//        });
+        System.out.println(outlierMap.size());
+        System.out.println(speedOutlierMap.size());
+        System.out.println(variationOutlierMap.size());
+        System.out.println(intervalOutlierMap.size());
+        System.out.println(accelerationOutlierMap.size());
+
     }
 
     public void initHistogram(int interval){
