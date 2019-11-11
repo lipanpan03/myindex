@@ -1,7 +1,14 @@
 package cn.edu.shu.dquality.back;
 
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.DoubleType;
+import org.apache.spark.sql.types.IntegerType;
+import org.apache.spark.sql.types.LongType;
+import org.json4s.JsonUtil;
+import scala.Tuple2;
+import scala.collection.Seq;
 
 import java.io.*;
 import java.text.ParseException;
@@ -148,7 +155,12 @@ public class CalculateStreamIndex {
     public static void streamProcess(Dataset<Row> inputDataset, int interval, int sigma, String time_col){
         List<Row> list = inputDataset.collectAsList();
         String time_col_as_long = time_col+time_suffix;
+        Dataset<Row> df =inputDataset.withColumn(time_col_as_long,inputDataset.col(time_col).cast("long"));
+        //df.schema().filter()
+        ArrayList columns = new ArrayList();
+        for (String item:df.columns()){
 
+        }
     }
 
     public static void main(String[] args) throws IOException, ParseException {
