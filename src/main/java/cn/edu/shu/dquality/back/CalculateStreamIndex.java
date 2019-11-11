@@ -1,6 +1,7 @@
 package cn.edu.shu.dquality.back;
 
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 
 import java.io.*;
 import java.text.ParseException;
@@ -15,6 +16,12 @@ public class CalculateStreamIndex {
     private static final String FILE_PATH="data/1701_2019-01.csv";
     private static final int INTERVAL=10;
     private static final int SIGMA=3;
+    private static String speed_suffix = "-speed";
+    private static String acceleration_suffix = "-accelerated";
+    private static String variation_suffix = "-variation";
+    private static String time_suffix = "_asLong";
+    private static String interval_suffix = "-interval";
+    private static Long neighbor_range = 10L;
 
     public static void streamProcess(String filename, int interval) throws IOException, ParseException {
         Long startTime = System.currentTimeMillis();
@@ -138,8 +145,10 @@ public class CalculateStreamIndex {
         System.out.println(endTime-startTime+"ms");
     }
 
-    public static void streamProcess(Dataset inputDataset, int interval, int sigma){
-        List<String> list = inputDataset.collectAsList();
+    public static void streamProcess(Dataset<Row> inputDataset, int interval, int sigma, String time_col){
+        List<Row> list = inputDataset.collectAsList();
+        String time_col_as_long = time_col+time_suffix;
+
     }
 
     public static void main(String[] args) throws IOException, ParseException {
