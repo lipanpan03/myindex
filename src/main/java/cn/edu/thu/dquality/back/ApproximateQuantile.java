@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Created on 2019/11/26.
- *
+ * After initializing, use insert() to add new data in a stream. When all data has been added, use query() to compute quantile.
  * @author Zhiwei Chen
  */
 public class ApproximateQuantile {
@@ -20,6 +20,10 @@ public class ApproximateQuantile {
         this(0.05);
     }
 
+    /**
+     * Constructor
+     * @param e approximate error, the less the error is, the more accurate the answer is. It is usually set to 0.01, 0.05, 0.1.
+     */
     public ApproximateQuantile(double e){
         this.eps = e;
         this.summary = new ArrayList<Tuple>();
@@ -27,6 +31,10 @@ public class ApproximateQuantile {
         this.iteration = (int)(1 / (2 * this.eps));
     }
 
+    /**
+     * Add new data element
+     * @param v new arrival data element
+     */
     public void insert(double v){
         if(this.n % this.iteration == 0){
             this.compress();
@@ -48,6 +56,11 @@ public class ApproximateQuantile {
         ++this.n;
     }
 
+    /**
+     * Query the quantile
+     * @param phi the relative rank of the quantile. For example, setting phi to 0.5 is to compute median.
+     * @return quantile
+     */
     public double query(double phi){
         int r = (int)Math.ceil(phi * this.n), e = (int)Math.floor(this.eps * this.n);
         int r_plus_e = r + e, r_minus_e = r - e, r_min = 0;
