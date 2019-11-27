@@ -44,11 +44,14 @@ public class CalculateStreamIndex {
 
         //speed accelerate need data
         long lastSTime=0,flag=0;
-        List<Double> originData = new ArrayList<Double>(), originSpeed = new ArrayList<Double>();
+        List<Double> originData = new ArrayList<Double>(), originSpeed = new ArrayList<Double>(), intervalData = new ArrayList<>(),variationData = new ArrayList<>(), accelerationData = new ArrayList<>();
         for (int i=0;i<=length;i++)
         {
             originData.add(0.0);
             originSpeed.add(0.0);
+            variationData.add(0.0);
+            accelerationData.add(0.0);
+            intervalData.add(0.0);
         }
 
         while ((line=bufferedReader.readLine())!=null){
@@ -57,6 +60,7 @@ public class CalculateStreamIndex {
             if (flag==1){
                 lastSTime=format.parse(item[0]).getTime();
             }
+
             for (int i=1;i<length;i++){
                 double data = Double.parseDouble(item[i]);
                 indices.get(i).updateOrigin(data);
