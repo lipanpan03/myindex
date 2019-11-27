@@ -1,15 +1,7 @@
-<<<<<<< HEAD:src/main/java/cn/edu/shu/dquality/back/Index.java
-package cn.edu.shu.dquality.back;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-=======
 package cn.edu.thu.dquality.back;
 
 import java.util.ArrayList;
 import java.util.HashMap;
->>>>>>> c0d0333c4a2c1cb239db154a08d1c95e0a87feb1:src/main/java/cn/edu/thu/dquality/back/Index.java
 import java.util.Map;
 
 public class Index {

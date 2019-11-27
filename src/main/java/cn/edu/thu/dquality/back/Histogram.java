@@ -1,9 +1,4 @@
-<<<<<<< HEAD:src/main/java/cn/edu/shu/dquality/back/Histogram.java
-package cn.edu.shu.dquality.back;
-=======
 package cn.edu.thu.dquality.back;
->>>>>>> c0d0333c4a2c1cb239db154a08d1c95e0a87feb1:src/main/java/cn/edu/thu/dquality/back/Histogram.java
-
 class Histogram {
     private double min;
     private double max;
