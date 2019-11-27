@@ -1,13 +1,13 @@
-package cn.edu.thu.dquality.back;
+package cn.edu.thu.dquality.back.lite;
 
-class Histogram {
+public class DataHistogram {
     private double min;
     private double max;
     private int intervalNumber;
     private double gap;
     private int[] buckets;
 
-    public Histogram(double min, double max, int intervalNumber) {
+    public DataHistogram(double min, double max, int intervalNumber) {
         this.min = min;
         this.max = max;
         this.intervalNumber = intervalNumber;
@@ -26,6 +26,9 @@ class Histogram {
         return (min + index * gap) + "~" + (min + (index + 1) * gap);
     }
 
+    public String getYAxis(int index){
+        return String.valueOf(buckets[index]);
+    }
     public void print()
     {
         for (int i=0;i<intervalNumber;i++)
