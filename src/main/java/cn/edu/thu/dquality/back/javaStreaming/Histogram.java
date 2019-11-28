@@ -33,4 +33,8 @@ class Histogram {
         }
         System.out.println();
     }
+
+    public String getYAxis(int index){
+        return String.valueOf(buckets[index]);
+    }
 }

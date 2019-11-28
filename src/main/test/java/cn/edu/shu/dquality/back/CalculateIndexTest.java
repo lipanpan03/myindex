@@ -28,6 +28,6 @@ public class CalculateIndexTest {
         SparkSession sparkSession = SparkSession.builder().appName("sparkTest").master("local[*]").getOrCreate();
         Dataset<String> dataset =sparkSession.createDataset(dataList, Encoders.STRING());
         Dataset<Row> dataset1 = sparkSession.read().csv(dataset).toDF(header.split(","));
-        CalculateStreamIndex.streamProcess(dataset1,10,3,"time");
+        //CalculateStreamIndex.streamProcess(dataset1,10,3,"time");
     }
 }

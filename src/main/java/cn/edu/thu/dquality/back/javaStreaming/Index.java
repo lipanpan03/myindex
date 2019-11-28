@@ -14,8 +14,8 @@ public class Index {
     private double zero;
     private ApproximateQuantile approximateQuantile;
 
-    public ApproximateQuantile getApproximateQuantile() {
-        return approximateQuantile;
+    public double getApproximateQuantile() {
+        return approximateQuantile.query(0.5);
     }
 
     public double getCount() {
@@ -50,6 +50,11 @@ public class Index {
     Queue<Integer> timeQueue;
     Queue<Outlier> outlierQueue;
     private Histogram histogram;
+
+    public Histogram getHistogram() {
+        return histogram;
+    }
+
     public Index() {
         count=0;
         mean=0;

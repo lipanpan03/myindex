@@ -1,8 +1,10 @@
 package cn.edu.thu.dquality.back.javaStreaming;
 
-import org.apache.directory.shared.kerberos.codec.apRep.actions.ApRepInit;
+import cn.edu.thu.dquality.back.javaStreaming.table.Header;
+import cn.edu.thu.dquality.back.javaStreaming.table.Row;
+import cn.edu.thu.dquality.back.javaStreaming.table.Table;
 import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import scala.Tuple3;
 
 import java.io.*;
 import java.text.ParseException;
@@ -14,21 +16,21 @@ import java.util.*;
  */
 public class CalculateStreamIndex {
 
-    private static final String FILE_PATH="data/1701_2019-01_sample.csv";
+    private static final String FILE_PATH="data/test.csv";
     private static final int INTERVAL=10;
     private static final int SIGMA=3;
-    private static String speed_suffix = "-speed";
-    private static String acceleration_suffix = "-accelerated";
-    private static String variation_suffix = "-variation";
-    private static String time_suffix = "_asLong";
-    private static String interval_suffix = "-interval";
-    private static Long neighbor_range = 10L;
 
-    public static void streamProcess(String filename, int interval) throws IOException, ParseException {
+    public static Tuple3<Table,Table,Table> streamProcess(String filename, int interval, String timeCol) throws IOException, ParseException {
         Long startTime = System.currentTimeMillis();
         BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
         String line = null;
         System.out.println(line = bufferedReader.readLine());
+        int timeIndex = 0;
+        String[] indexStrings = line.split(",");
+        for (int i=0;i<indexStrings.length;i++){
+            if (timeCol.equals(indexStrings[i]))
+                timeIndex=i;
+        }
         List<Aggregation> indices = new ArrayList<>();
         int length=line.split(",").length;
         for (int i=0;i<length;i++)
@@ -48,10 +50,13 @@ public class CalculateStreamIndex {
             String[] item = line.split(",");
             flag++;
             if (flag==1){
-                lastSTime=format.parse(item[0]).getTime();
+                lastSTime=format.parse(item[timeIndex]).getTime();
             }
 
-            for (int i=1;i<length;i++){
+            for (int i=0;i<length;i++){
+                if (i==timeIndex){
+                    continue;
+                }
                 double data = Double.parseDouble(item[i]);
                 indices.get(i).originData.update(data);
                 if (flag==1)
@@ -60,7 +65,7 @@ public class CalculateStreamIndex {
                 }
                 if (flag>=2)
                 {
-                    long nowTime = format.parse(item[0]).getTime();
+                    long nowTime = format.parse(item[timeIndex]).getTime();
                     long during = nowTime-lastSTime;
                     //calculate interval
                     indices.get(i).intervalData.update(during);
@@ -82,7 +87,7 @@ public class CalculateStreamIndex {
                     }
                 }
             }
-            lastSTime=format.parse(item[0]).getTime();
+            lastSTime=format.parse(item[timeIndex]).getTime();
         }
         for (int i=1;i<length;i++){
             indices.get(i).originData.initHistogram(interval);
@@ -99,11 +104,13 @@ public class CalculateStreamIndex {
             String[] item = line1.split(",");
             flag++;
             if (flag==1){
-                lastSTime=format.parse(item[0]).getTime();
+                lastSTime=format.parse(item[timeIndex]).getTime();
             }
-            for (int i=1;i<length;i++){
+            for (int i=0;i<length;i++){
+                if(i==timeIndex)
+                    continue;
                 double data = Double.parseDouble(item[i]);
-                indices.get(i).originData.updateOutlier(item[0], (int) flag,data,SIGMA);
+                indices.get(i).originData.updateOutlier(item[timeIndex], (int) flag,data,SIGMA);
                 indices.get(i).originData.updateHistogram(data);
                 if (flag==1)
                 {
@@ -111,15 +118,15 @@ public class CalculateStreamIndex {
                 }
                 if (flag>=2)
                 {
-                    long nowTime = format.parse(item[0]).getTime();
+                    long nowTime = format.parse(item[timeIndex]).getTime();
                     long during = nowTime-lastSTime;
                     double variation = data-originData.get(i);
-                    indices.get(i).variationData.updateOutlier(item[0],(int) flag,variation,SIGMA);
+                    indices.get(i).variationData.updateOutlier(item[timeIndex],(int) flag,variation,SIGMA);
                     indices.get(i).variationData.updateHistogram(variation);
-                    indices.get(i).intervalData.updateOutlier(item[0],(int) flag,Long.valueOf(during).doubleValue(),SIGMA);
+                    indices.get(i).intervalData.updateOutlier(item[timeIndex],(int) flag,Long.valueOf(during).doubleValue(),SIGMA);
                     indices.get(i).intervalData.updateHistogram(Long.valueOf(during).doubleValue());
                     double speed = (data-originData.get(i))/during*1000;
-                    indices.get(i).speedData.updateOutlier(item[0],(int) flag,speed,SIGMA);
+                    indices.get(i).speedData.updateOutlier(item[timeIndex],(int) flag,speed,SIGMA);
                     indices.get(i).speedData.updateHistogram(speed);
                     originData.set(i,data);
                     if (flag==2)
@@ -128,13 +135,13 @@ public class CalculateStreamIndex {
                     }
                     if (flag>2){
                         double acceleration = (speed-originSpeed.get(i));
-                        indices.get(i).accelerationData.updateOutlier(item[0],(int) flag,acceleration,SIGMA);
+                        indices.get(i).accelerationData.updateOutlier(item[timeIndex],(int) flag,acceleration,SIGMA);
                         indices.get(i).accelerationData.updateHistogram(acceleration);
                         originSpeed.set(i,speed);
                     }
                 }
             }
-            lastSTime=format.parse(item[0]).getTime();
+            lastSTime=format.parse(item[timeIndex]).getTime();
         }
         BufferedReader reader2 = new BufferedReader(new FileReader(filename));
         reader2.readLine();
@@ -146,14 +153,16 @@ public class CalculateStreamIndex {
             String[] item = line2.split(",");
             flag++;
             if (flag==1){
-                lastSTime=format.parse(item[0]).getTime();
+                lastSTime=format.parse(item[timeIndex]).getTime();
             }
-            for (int i=1;i<length;i++){
+            for (int i=0;i<length;i++){
+                if(i==timeIndex)
+                    continue;
                 double data = Double.parseDouble(item[i]);
                 timeQueue = indices.get(i).originData.timeQueue;
                 outlierQueue = indices.get(i).originData.outlierQueue;
                 if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                    indices.get(i).originOutlier.add(new Outlier(Math.abs(data-indices.get(i).originData.getMean())/indices.get(i).originData.getStd(),data,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                    indices.get(i).originOutlier.add(new Outlier(Math.abs(data-indices.get(i).originData.getMean())/indices.get(i).originData.getStd(),data,item[timeIndex],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                 }
                 if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                     timeQueue.remove();
@@ -165,13 +174,13 @@ public class CalculateStreamIndex {
                 }
                 if (flag>=2)
                 {
-                    long nowTime = format.parse(item[0]).getTime();
+                    long nowTime = format.parse(item[timeIndex]).getTime();
                     long during = nowTime-lastSTime;
                     double variation = data-originData.get(i);
                     timeQueue = indices.get(i).variationData.timeQueue;
                     outlierQueue = indices.get(i).variationData.outlierQueue;
                     if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                        indices.get(i).variationOutlier.add(new Outlier(Math.abs(variation-indices.get(i).variationData.getMean())/indices.get(i).variationData.getStd(),variation,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                        indices.get(i).variationOutlier.add(new Outlier(Math.abs(variation-indices.get(i).variationData.getMean())/indices.get(i).variationData.getStd(),variation,item[timeIndex],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                     }
                     if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                         timeQueue.remove();
@@ -180,7 +189,7 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).intervalData.timeQueue;
                     outlierQueue = indices.get(i).intervalData.outlierQueue;
                     if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                        indices.get(i).intervalOutlier.add(new Outlier(Math.abs(during-indices.get(i).intervalData.getMean())/indices.get(i).intervalData.getStd(),during,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                        indices.get(i).intervalOutlier.add(new Outlier(Math.abs(during-indices.get(i).intervalData.getMean())/indices.get(i).intervalData.getStd(),during,item[timeIndex],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                     }
                     if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                         timeQueue.remove();
@@ -190,7 +199,7 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).speedData.timeQueue;
                     outlierQueue = indices.get(i).speedData.outlierQueue;
                     if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                        indices.get(i).speedOutlier.add(new Outlier(Math.abs(speed-indices.get(i).speedData.getMean())/indices.get(i).speedData.getStd(),speed,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                        indices.get(i).speedOutlier.add(new Outlier(Math.abs(speed-indices.get(i).speedData.getMean())/indices.get(i).speedData.getStd(),speed,item[timeIndex],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                     }
                     if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                         timeQueue.remove();
@@ -206,7 +215,7 @@ public class CalculateStreamIndex {
                         timeQueue = indices.get(i).accelerationData.timeQueue;
                         outlierQueue = indices.get(i).accelerationData.outlierQueue;
                         if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                            indices.get(i).accelerationOutlier.add(new Outlier(Math.abs(acceleration-indices.get(i).accelerationData.getMean())/indices.get(i).accelerationData.getStd(),acceleration,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                            indices.get(i).accelerationOutlier.add(new Outlier(Math.abs(acceleration-indices.get(i).accelerationData.getMean())/indices.get(i).accelerationData.getStd(),acceleration,item[timeIndex],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                         }
                         if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                             timeQueue.remove();
@@ -216,30 +225,138 @@ public class CalculateStreamIndex {
                     }
                 }
             }
-            lastSTime=format.parse(item[0]).getTime();
+            lastSTime=format.parse(item[timeIndex]).getTime();
         }
-        System.out.println("count | mean | min | max | std | zero | outlier | quantile-0.5");
-        for (int i=1;i<length;i++) {
-            indices.get(i).print();
+        String[] indexAttrs = new String[]{"FeatureName@string","FeatureValue@string","Attribute@string","FeatureType@string","TimeAttr@string"};
+        Header indexHeader = new Header(indexAttrs);
+        List<Row> indexRows = new ArrayList<>();
+        for (int i=0;i<length;i++){
+            if (i!=timeIndex){
+                String[][] dataList = new String[][]{
+                        new String[]{"Count",String.valueOf(indices.get(i).originData.getCount()),indexStrings[i],"origin","null"},
+                        new String[]{"Average",String.valueOf(indices.get(i).originData.getMean()),indexStrings[i],"origin","null"},
+                        new String[]{"StandardDeviation",String.valueOf(indices.get(i).originData.getStd()),indexStrings[i],"origin","null"},
+                        new String[]{"Min",String.valueOf(indices.get(i).originData.getMin()),indexStrings[i],"origin","null"},
+                        new String[]{"Max",String.valueOf(indices.get(i).originData.getMax()),indexStrings[i],"origin","null"},
+                        new String[]{"Zero",String.valueOf(indices.get(i).originData.getZero()),indexStrings[i],"origin","null"},
+                        new String[]{"Outlier",String.valueOf(indices.get(i).originData.getOutlier()),indexStrings[i],"origin","null"},
+                        new String[]{"Quantile-0.5",String.valueOf(indices.get(i).originData.getApproximateQuantile()),indexStrings[i],"origin","null"},
+                        new String[]{"Datatype","numeric",indexStrings[i],"origin","null"},
+                        new String[]{"Count",String.valueOf(indices.get(i).variationData.getCount()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Average",String.valueOf(indices.get(i).variationData.getMean()),indexStrings[i],"variation",timeCol},
+                        new String[]{"StandardDeviation",String.valueOf(indices.get(i).variationData.getStd()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Min",String.valueOf(indices.get(i).variationData.getMin()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Max",String.valueOf(indices.get(i).variationData.getMax()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Zero",String.valueOf(indices.get(i).variationData.getZero()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Outlier",String.valueOf(indices.get(i).variationData.getOutlier()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Quantile-0.5",String.valueOf(indices.get(i).variationData.getApproximateQuantile()),indexStrings[i],"variation",timeCol},
+                        new String[]{"Datatype","numeric",indexStrings[i],"variation",timeCol},
+                        new String[]{"Count",String.valueOf(indices.get(i).intervalData.getCount()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Average",String.valueOf(indices.get(i).intervalData.getMean()),indexStrings[i],"interval",timeCol},
+                        new String[]{"StandardDeviation",String.valueOf(indices.get(i).intervalData.getStd()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Min",String.valueOf(indices.get(i).intervalData.getMin()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Max",String.valueOf(indices.get(i).intervalData.getMax()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Zero",String.valueOf(indices.get(i).intervalData.getZero()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Outlier",String.valueOf(indices.get(i).intervalData.getOutlier()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Quantile-0.5",String.valueOf(indices.get(i).intervalData.getApproximateQuantile()),indexStrings[i],"interval",timeCol},
+                        new String[]{"Datatype","numeric",indexStrings[i],"interval",timeCol},
+                        new String[]{"Count",String.valueOf(indices.get(i).speedData.getCount()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Average",String.valueOf(indices.get(i).speedData.getMean()),indexStrings[i],"speed",timeCol},
+                        new String[]{"StandardDeviation",String.valueOf(indices.get(i).speedData.getStd()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Min",String.valueOf(indices.get(i).speedData.getMin()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Max",String.valueOf(indices.get(i).speedData.getMax()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Zero",String.valueOf(indices.get(i).speedData.getZero()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Outlier",String.valueOf(indices.get(i).speedData.getOutlier()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Quantile-0.5",String.valueOf(indices.get(i).speedData.getApproximateQuantile()),indexStrings[i],"speed",timeCol},
+                        new String[]{"Datatype","numeric",indexStrings[i],"speed",timeCol},
+                        new String[]{"Count",String.valueOf(indices.get(i).accelerationData.getCount()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Average",String.valueOf(indices.get(i).accelerationData.getMean()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"StandardDeviation",String.valueOf(indices.get(i).accelerationData.getStd()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Min",String.valueOf(indices.get(i).accelerationData.getMin()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Max",String.valueOf(indices.get(i).accelerationData.getMax()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Zero",String.valueOf(indices.get(i).accelerationData.getZero()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Outlier",String.valueOf(indices.get(i).accelerationData.getOutlier()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Quantile-0.5",String.valueOf(indices.get(i).accelerationData.getApproximateQuantile()),indexStrings[i],"accelerated",timeCol},
+                        new String[]{"Datatype","numeric",indexStrings[i],"accelerated",timeCol},
+                };
+                for (String[] rows: dataList){
+                    indexRows.add(new Row(indexHeader,rows));
+                }
+            }
         }
+        indexRows.add(new Row(indexHeader,new String[]{"Datatype","time",timeCol,"origin","null"}));
+        Table indexTable = new Table(indexHeader,indexRows);
 
+        String[] histogramAttrs = new String[]{"xAxis@string","yAxis@string","Attribute@string","FeatureType@string","TimeAttr@string"};
+        Header histogramHeader = new Header(indexAttrs);
+        List<Row> histogramRows = new ArrayList<>();
+        for (int i=0;i<length;i++){
+            if (i!=timeIndex) {
+                Histogram histogram = indices.get(i).originData.getHistogram();
+                for (int j=0;j<interval;j++){
+                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j),histogram.getYAxis(j),indexStrings[i],"origin",timeCol}));
+                }
+                histogram = indices.get(i).variationData.getHistogram();
+                for (int j=0;j<interval;j++){
+                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j),histogram.getYAxis(j),indexStrings[i],"variation",timeCol}));
+                }
+                histogram = indices.get(i).intervalData.getHistogram();
+                for (int j=0;j<interval;j++){
+                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j),histogram.getYAxis(j),indexStrings[i],"interval",timeCol}));
+                }
+                histogram = indices.get(i).speedData.getHistogram();
+                for (int j=0;j<interval;j++){
+                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j),histogram.getYAxis(j),indexStrings[i],"speed",timeCol}));
+                }
+                histogram = indices.get(i).accelerationData.getHistogram();
+                for (int j=0;j<interval;j++){
+                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j),histogram.getYAxis(j),indexStrings[i],"accelerated",timeCol}));
+                }
+            }
+        }
+        Table histogramTable = new Table(histogramHeader,histogramRows);
+
+        String[] outlierAttrs = new String[]{"Abnormality@double","CalculatedValue@double","NeighborId@string","Value@double","OutlierId@string","Attribute@string","FeatureType@string","TimeAttr@string"};
+        Header outlierHeader = new Header(indexAttrs);
+        List<Row> outlierRows = new ArrayList<>();
+        for (int i=0;i<length;i++){
+            if (i!=timeIndex) {
+                for (Outlier outlier:indices.get(i).originOutlier){
+                    outlierRows.add(new Row(outlierHeader,new Object[]{outlier.abnormality,outlier.calculatedValue,outlier.neighborId,outlier.value,outlier.outlierId,indexStrings[i],"origin",timeCol}));
+                }
+                for (Outlier outlier:indices.get(i).variationOutlier){
+                    outlierRows.add(new Row(outlierHeader,new Object[]{outlier.abnormality,outlier.calculatedValue,outlier.neighborId,outlier.value,outlier.outlierId,indexStrings[i],"variation",timeCol}));
+                }
+                for (Outlier outlier:indices.get(i).intervalOutlier){
+                    outlierRows.add(new Row(outlierHeader,new Object[]{outlier.abnormality,outlier.calculatedValue,outlier.neighborId,outlier.value,outlier.outlierId,indexStrings[i],"interval",timeCol}));
+                }
+                for (Outlier outlier:indices.get(i).speedOutlier){
+                    outlierRows.add(new Row(outlierHeader,new Object[]{outlier.abnormality,outlier.calculatedValue,outlier.neighborId,outlier.value,outlier.outlierId,indexStrings[i],"speed",timeCol}));
+                }
+                for (Outlier outlier:indices.get(i).accelerationOutlier){
+                    outlierRows.add(new Row(outlierHeader,new Object[]{outlier.abnormality,outlier.calculatedValue,outlier.neighborId,outlier.value,outlier.outlierId,indexStrings[i],"accelerated",timeCol}));
+                }
+            }
+        }
+        Table outlierTable = new Table(outlierHeader,outlierRows);
         Long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime+"ms");
+        return new Tuple3<>(indexTable,histogramTable,outlierTable);
     }
 
     public static void streamProcess(Dataset<Row> inputDataset, int interval, int sigma, String time_col){
         List<Row> list = inputDataset.collectAsList();
-        String time_col_as_long = time_col+time_suffix;
-        Dataset<Row> df =inputDataset.withColumn(time_col_as_long,inputDataset.col(time_col).cast("long"));
+        //String time_col_as_long = time_col+time_suffix;
+        //Dataset<Row> df =inputDataset.withColumn(time_col_as_long,inputDataset.col(time_col).cast("long"));
         //df.schema().filter()
         ArrayList columns = new ArrayList();
-        for (String item:df.columns()){
-
-        }
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        streamProcess(FILE_PATH,INTERVAL);
+        Tuple3<Table,Table,Table> tuple3 = streamProcess(FILE_PATH,INTERVAL,"time");
+        System.out.println(tuple3._1().toString());
+        System.out.println(tuple3._2().toString());
+        System.out.println(tuple3._3().toString());
     }
 
     private static String getDataForBatch(String filename) throws IOException, ParseException {
