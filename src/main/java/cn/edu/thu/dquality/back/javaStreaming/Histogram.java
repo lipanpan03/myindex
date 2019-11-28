@@ -1,4 +1,5 @@
 package cn.edu.thu.dquality.back.javaStreaming;
+
 class Histogram {
     private double min;
     private double max;
@@ -25,16 +26,14 @@ class Histogram {
         return (min + index * gap) + "~" + (min + (index + 1) * gap);
     }
 
-    public void print()
-    {
-        for (int i=0;i<intervalNumber;i++)
-        {
-            System.out.print(getXAxis(i)+" "+buckets[i]+" ");
+    public void print() {
+        for (int i = 0; i < intervalNumber; i++) {
+            System.out.print(getXAxis(i) + " " + buckets[i] + " ");
         }
         System.out.println();
     }
 
-    public String getYAxis(int index){
+    public String getYAxis(int index) {
         return String.valueOf(buckets[index]);
     }
 }

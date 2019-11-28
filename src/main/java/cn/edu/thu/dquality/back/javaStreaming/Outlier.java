@@ -19,6 +19,6 @@ public class Outlier {
     }
 
     public void print() {
-        System.out.println(abnormality+" "+calculatedValue+" "+neighborId+" "+value+" "+outlierId);
+        System.out.println(abnormality + " " + calculatedValue + " " + neighborId + " " + value + " " + outlierId);
     }
 }

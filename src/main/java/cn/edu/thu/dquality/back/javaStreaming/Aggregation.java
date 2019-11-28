@@ -28,7 +28,7 @@ public class Aggregation {
         accelerationOutlier = new ArrayList<>();
     }
 
-    public void print(){
+    public void print() {
         //System.out.println(originOutlier.size());
         originData.print();
         variationData.print();
