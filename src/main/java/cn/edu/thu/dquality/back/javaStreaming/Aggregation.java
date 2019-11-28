@@ -27,4 +27,18 @@ public class Aggregation {
         speedOutlier = new ArrayList<>();
         accelerationOutlier = new ArrayList<>();
     }
+
+    public void print(){
+        //System.out.println(originOutlier.size());
+        originData.print();
+        variationData.print();
+        intervalData.print();
+        speedData.print();
+        accelerationData.print();
+        originOutlier.forEach(Outlier::print);
+        variationOutlier.forEach(Outlier::print);
+        intervalOutlier.forEach(Outlier::print);
+        speedOutlier.forEach(Outlier::print);
+        accelerationOutlier.forEach(Outlier::print);
+    }
 }

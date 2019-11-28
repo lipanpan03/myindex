@@ -1,5 +1,6 @@
 package cn.edu.shu.dquality.back;
 
+import cn.edu.thu.dquality.back.javaStreaming.CalculateStreamIndex;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;

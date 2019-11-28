@@ -17,4 +17,8 @@ public class Outlier {
         this.value = value;
         this.outlierId = outlierId;
     }
+
+    public void print() {
+        System.out.println(abnormality+" "+calculatedValue+" "+neighborId+" "+value+" "+outlierId);
+    }
 }

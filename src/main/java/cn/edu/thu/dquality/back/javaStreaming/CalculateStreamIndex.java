@@ -1,5 +1,6 @@
 package cn.edu.thu.dquality.back.javaStreaming;
 
+import org.apache.directory.shared.kerberos.codec.apRep.actions.ApRepInit;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -13,7 +14,7 @@ import java.util.*;
  */
 public class CalculateStreamIndex {
 
-    private static final String FILE_PATH="data/1701_2019-01.csv";
+    private static final String FILE_PATH="data/1701_2019-01_sample.csv";
     private static final int INTERVAL=10;
     private static final int SIGMA=3;
     private static String speed_suffix = "-speed";
@@ -28,7 +29,7 @@ public class CalculateStreamIndex {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
         String line = null;
         System.out.println(line = bufferedReader.readLine());
-        List<Aggregation> indices = new ArrayList<Aggregation>();
+        List<Aggregation> indices = new ArrayList<>();
         int length=line.split(",").length;
         for (int i=0;i<length;i++)
             indices.add(new Aggregation());
@@ -170,7 +171,7 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).variationData.timeQueue;
                     outlierQueue = indices.get(i).variationData.outlierQueue;
                     if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                        indices.get(i).variationOutlier.add(new Outlier(Math.abs(data-indices.get(i).variationData.getMean())/indices.get(i).variationData.getStd(),data,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                        indices.get(i).variationOutlier.add(new Outlier(Math.abs(variation-indices.get(i).variationData.getMean())/indices.get(i).variationData.getStd(),variation,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                     }
                     if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                         timeQueue.remove();
@@ -179,7 +180,7 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).intervalData.timeQueue;
                     outlierQueue = indices.get(i).intervalData.outlierQueue;
                     if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                        indices.get(i).intervalOutlier.add(new Outlier(Math.abs(data-indices.get(i).intervalData.getMean())/indices.get(i).intervalData.getStd(),data,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                        indices.get(i).intervalOutlier.add(new Outlier(Math.abs(during-indices.get(i).intervalData.getMean())/indices.get(i).intervalData.getStd(),during,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                     }
                     if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                         timeQueue.remove();
@@ -189,7 +190,7 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).speedData.timeQueue;
                     outlierQueue = indices.get(i).speedData.outlierQueue;
                     if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                        indices.get(i).speedOutlier.add(new Outlier(Math.abs(data-indices.get(i).speedData.getMean())/indices.get(i).speedData.getStd(),data,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                        indices.get(i).speedOutlier.add(new Outlier(Math.abs(speed-indices.get(i).speedData.getMean())/indices.get(i).speedData.getStd(),speed,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                     }
                     if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                         timeQueue.remove();
@@ -205,7 +206,7 @@ public class CalculateStreamIndex {
                         timeQueue = indices.get(i).accelerationData.timeQueue;
                         outlierQueue = indices.get(i).accelerationData.outlierQueue;
                         if (!timeQueue.isEmpty()&& flag>= timeQueue.peek() -10 && flag<=timeQueue.peek() +10) {
-                            indices.get(i).accelerationOutlier.add(new Outlier(Math.abs(data-indices.get(i).accelerationData.getMean())/indices.get(i).accelerationData.getStd(),data,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
+                            indices.get(i).accelerationOutlier.add(new Outlier(Math.abs(acceleration-indices.get(i).accelerationData.getMean())/indices.get(i).accelerationData.getStd(),acceleration,item[0],outlierQueue.peek().value,outlierQueue.peek().outlierId));
                         }
                         if (!timeQueue.isEmpty()&& flag> timeQueue.peek() +10){
                             timeQueue.remove();
@@ -217,14 +218,11 @@ public class CalculateStreamIndex {
             }
             lastSTime=format.parse(item[0]).getTime();
         }
-        System.out.println("count | mean | min | max | std | zero | outlier");
+        System.out.println("count | mean | min | max | std | zero | outlier | quantile-0.5");
         for (int i=1;i<length;i++) {
-            indices.get(i).originData.print();
-            indices.get(i).variationData.print();
-            indices.get(i).intervalData.print();
-            indices.get(i).speedData.print();
-            indices.get(i).accelerationData.print();
+            indices.get(i).print();
         }
+
         Long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime+"ms");
     }

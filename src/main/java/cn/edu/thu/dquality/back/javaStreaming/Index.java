@@ -12,6 +12,11 @@ public class Index {
     private double max;
     private double std;
     private double zero;
+    private ApproximateQuantile approximateQuantile;
+
+    public ApproximateQuantile getApproximateQuantile() {
+        return approximateQuantile;
+    }
 
     public double getCount() {
         return count;
@@ -55,6 +60,7 @@ public class Index {
         outlier=0;
         timeQueue = new LinkedList<>();
         outlierQueue = new LinkedList<>();
+        approximateQuantile = new ApproximateQuantile();
     }
 
     public void update(double data){
@@ -64,10 +70,11 @@ public class Index {
         this.std=Math.sqrt((Math.pow(this.std,2)*(this.count-1)+(this.count-1)/this.count*Math.pow(data-this.mean,2))/this.count);
         this.mean+=(data-this.mean)/this.count;
         this.zero+=data==0?1:0;
+        approximateQuantile.insert(data);
     }
 
     public void print(){
-        System.out.println(count+" "+mean+" "+min+" "+max+" "+std+" "+zero+" "+outlier);
+        System.out.println(count+" "+mean+" "+min+" "+max+" "+std+" "+zero+" "+outlier+" "+approximateQuantile.query(0.5));
         histogram.print();
     }
 
