@@ -1,8 +1,6 @@
 package cn.edu.thu.dquality.back;
 
 import cn.edu.thu.dquality.back.javaStreaming.CalculateStreamIndex;
-import cn.edu.thu.dquality.back.javaStreaming.table.Header;
-import cn.edu.thu.dquality.back.javaStreaming.table.Table;
 import cn.edu.thu.dquality.back.lite.CalculateStreamIndexLite;
 import org.apache.spark.sql.*;
 import org.junit.Test;
@@ -20,25 +18,11 @@ public class CalculateIndexTest {
 
     @Test
     public void testCalculateIndex() throws IOException, ParseException {
-
+        long startTime = System.currentTimeMillis();
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("data/test.csv"));
-        String line = null;
-        System.out.println(line = bufferedReader.readLine());
-        String[] attrs = line.split(",");
-        attrs[0] += "@string";
-        for (int i = 1; i < attrs.length; i++)
-            attrs[i] += "@double";
-        Header header = new Header(attrs);
-        List<cn.edu.thu.dquality.back.javaStreaming.table.Row> rowList = new ArrayList<>();
-        while ((line = bufferedReader.readLine()) != null) {
-            rowList.add(new cn.edu.thu.dquality.back.javaStreaming.table.Row(header, line.split(",")));
-        }
-        Table table = new Table(header, rowList);
-        Tuple3<Table, Table, Table> result = calculateStreamIndex.streamProcess(table, "time");
-        System.out.println(result._1().toString());
-        System.out.println(result._2().toString());
-        System.out.println(result._3().toString());
+        calculateStreamIndex.streamProcess("data/empty.csv", "time");
+        long endTime = System.currentTimeMillis();
+        System.out.println(endTime-startTime+"ms");
     }
 
     private void List2Dataset() throws IOException, ParseException {
