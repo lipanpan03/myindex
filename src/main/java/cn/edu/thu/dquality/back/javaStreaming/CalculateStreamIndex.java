@@ -275,37 +275,38 @@ public class CalculateStreamIndex {
         indexRows.add(new Row(indexHeader, new String[]{"Datatype", "time", timeCol, "origin", "null"}));
         Table indexTable = new Table(indexHeader, indexRows);
 
-        String[] histogramAttrs = new String[]{"xAxis@string", "yAxis@string", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
-        Header histogramHeader = new Header(indexAttrs);
+
+        String[] histogramAttrs = new String[]{"xAxis@string", "yAxis@int", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
+        Header histogramHeader = new Header(histogramAttrs);
         List<Row> histogramRows = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             if (i != timeIndex) {
                 Histogram histogram = indices.get(i).originData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "origin", timeCol}));
+                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "origin", timeCol}));
                 }
                 histogram = indices.get(i).variationData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "variation", timeCol}));
+                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "variation", timeCol}));
                 }
                 histogram = indices.get(i).intervalData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "interval", timeCol}));
+                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "interval", timeCol}));
                 }
                 histogram = indices.get(i).speedData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "speed", timeCol}));
+                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "speed", timeCol}));
                 }
                 histogram = indices.get(i).accelerationData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "accelerated", timeCol}));
+                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "accelerated", timeCol}));
                 }
             }
         }
         Table histogramTable = new Table(histogramHeader, histogramRows);
 
         String[] outlierAttrs = new String[]{"Abnormality@double", "CalculatedValue@double", "NeighborId@string", "Value@double", "OutlierId@string", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
-        Header outlierHeader = new Header(indexAttrs);
+        Header outlierHeader = new Header(outlierAttrs);
         List<Row> outlierRows = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             if (i != timeIndex) {

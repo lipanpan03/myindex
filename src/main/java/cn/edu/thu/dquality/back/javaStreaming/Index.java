@@ -4,19 +4,19 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Index {
-    private double count;
+    private int count;
     private double mean;
     private double min;
     private double max;
     private double std;
-    private double zero;
+    private int zero;
     private ApproximateQuantile approximateQuantile;
 
     public double getApproximateQuantile() {
         return approximateQuantile.query(0.5);
     }
 
-    public double getCount() {
+    public int getCount() {
         return count;
     }
 
@@ -36,15 +36,15 @@ public class Index {
         return std;
     }
 
-    public double getZero() {
+    public int getZero() {
         return zero;
     }
 
-    public double getOutlier() {
+    public int getOutlier() {
         return outlier;
     }
 
-    private double outlier;
+    private int outlier;
     Queue<Integer> timeQueue;
     Queue<Outlier> outlierQueue;
     private Histogram histogram;
@@ -63,7 +63,7 @@ public class Index {
         outlier = 0;
         timeQueue = new LinkedList<>();
         outlierQueue = new LinkedList<>();
-        approximateQuantile = new ApproximateQuantile();
+        approximateQuantile = new ApproximateQuantile(0.3);
     }
 
     public void update(double data) {

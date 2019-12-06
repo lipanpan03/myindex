@@ -21,7 +21,7 @@ public class CalculateIndexTest {
     @Test
     public void testCalculateIndex() throws IOException, ParseException {
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("data/test.csv"));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("data/1701_2019-01_sample.csv"));
         String line = null;
         System.out.println(line = bufferedReader.readLine());
         String[] attrs = line.split(",");
@@ -40,6 +40,11 @@ public class CalculateIndexTest {
         System.out.println(result._3().toString());
     }
 
+    @Test
+    public void testList(){
+        List<Integer> list = new ArrayList<>();
+
+    }
     private void List2Dataset() throws IOException, ParseException {
         List<Record> recordList = getRecords();
         SparkSession sparkSession = SparkSession.builder().appName("sparkTest").master("local[*]").getOrCreate();
