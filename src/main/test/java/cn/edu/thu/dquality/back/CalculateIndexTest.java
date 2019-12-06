@@ -20,7 +20,7 @@ public class CalculateIndexTest {
     public void testCalculateIndex() throws IOException, ParseException {
         long startTime = System.currentTimeMillis();
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
-        calculateStreamIndex.streamProcess("data/empty.csv", "time");
+        calculateStreamIndex.streamProcess("data/1701_2019-01.csv", "time");
         long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime+"ms");
     }
@@ -42,7 +42,7 @@ public class CalculateIndexTest {
         result._3().show();
     }
 
-    public List<Record> getRecords() throws IOException, ParseException {
+    private List<Record> getRecords() throws IOException, ParseException {
         List<Record> recordList = new ArrayList<>();
         BufferedReader bufferedReader = new BufferedReader(new FileReader("data/empty.csv"));
         String line = null;
