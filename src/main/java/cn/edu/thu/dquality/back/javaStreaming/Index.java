@@ -73,7 +73,7 @@ public class Index {
         this.std = Math.sqrt((Math.pow(this.std, 2) * (this.count - 1) + (this.count - 1) / this.count * Math.pow(data - this.mean, 2)) / this.count);
         this.mean += (data - this.mean) / this.count;
         this.zero += data == 0 ? 1 : 0;
-        approximateQuantile.insert(data);
+        //approximateQuantile.insert(data);
     }
 
     public void print() {
