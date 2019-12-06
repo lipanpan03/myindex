@@ -20,6 +20,7 @@ public class CalculateIndexTest {
 
     @Test
     public void testCalculateIndex() throws IOException, ParseException {
+
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
         BufferedReader bufferedReader = new BufferedReader(new FileReader("data/1701_2019-01_sample.csv"));
         String line = null;
