@@ -1,11 +1,5 @@
 package cn.edu.thu.dquality.back.javaStreaming;
 
-import cn.edu.thu.dquality.back.javaStreaming.table.Header;
-import cn.edu.thu.dquality.back.javaStreaming.table.Row;
-import cn.edu.thu.dquality.back.javaStreaming.table.Table;
-import org.apache.spark.sql.Dataset;
-import scala.Tuple3;
-
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +43,7 @@ public class CalculateStreamIndex {
             originData.add(0.0);
             originSpeed.add(0.0);
         }
-        while ((line1=reader1.readLine())!=null) {
+        while ((line1 = reader1.readLine()) != null) {
             flag++;
             String[] rowItems = line1.split(",");
             if (flag == 1) {
@@ -99,7 +93,7 @@ public class CalculateStreamIndex {
         flag = 0;
         BufferedReader reader2 = new BufferedReader(new FileReader(fileName));
         String line2 = reader2.readLine();
-        while ((line2=reader2.readLine())!=null) {
+        while ((line2 = reader2.readLine()) != null) {
             String[] rowItems = line2.split(",");
             flag++;
             if (flag == 1) {
@@ -143,7 +137,7 @@ public class CalculateStreamIndex {
         BufferedReader reader3 = new BufferedReader(new FileReader(fileName));
         String line3 = reader3.readLine();
         BufferedWriter writer3 = new BufferedWriter(new FileWriter("data/index/outlier.txt"));
-        while ((line3=reader3.readLine())!=null) {
+        while ((line3 = reader3.readLine()) != null) {
             Queue<Integer> timeQueue;
             Queue<Outlier> outlierQueue;
             String[] rowItems = line3.split(",");
@@ -158,8 +152,8 @@ public class CalculateStreamIndex {
                 timeQueue = indices.get(i).originData.timeQueue;
                 outlierQueue = indices.get(i).originData.outlierQueue;
                 if (!timeQueue.isEmpty() && flag >= timeQueue.peek() - 10 && flag <= timeQueue.peek() + 10) {
-                    String outlierStr = Math.abs(data - indices.get(i).originData.getMean()) / indices.get(i).originData.getStd()+ " " +data+ " " +rowItems[timeIndex]+ " " +outlierQueue.peek().value+ " " +outlierQueue.peek().outlierId;
-                    writer3.write(outlierStr+"\n");
+                    String outlierStr = Math.abs(data - indices.get(i).originData.getMean()) / indices.get(i).originData.getStd() + " " + data + " " + rowItems[timeIndex] + " " + outlierQueue.peek().value + " " + outlierQueue.peek().outlierId;
+                    writer3.write(outlierStr + "\n");
                 }
                 if (!timeQueue.isEmpty() && flag > timeQueue.peek() + 10) {
                     timeQueue.remove();
@@ -175,8 +169,8 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).variationData.timeQueue;
                     outlierQueue = indices.get(i).variationData.outlierQueue;
                     if (!timeQueue.isEmpty() && flag >= timeQueue.peek() - 10 && flag <= timeQueue.peek() + 10) {
-                        String outlierStr = Math.abs(variation - indices.get(i).variationData.getMean()) / indices.get(i).variationData.getStd()+ " " +variation+ " " +rowItems[timeIndex]+ " " +outlierQueue.peek().value+ " " +outlierQueue.peek().outlierId;
-                        writer3.write(outlierStr+"\n");
+                        String outlierStr = Math.abs(variation - indices.get(i).variationData.getMean()) / indices.get(i).variationData.getStd() + " " + variation + " " + rowItems[timeIndex] + " " + outlierQueue.peek().value + " " + outlierQueue.peek().outlierId;
+                        writer3.write(outlierStr + "\n");
                     }
                     if (!timeQueue.isEmpty() && flag > timeQueue.peek() + 10) {
                         timeQueue.remove();
@@ -185,8 +179,8 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).intervalData.timeQueue;
                     outlierQueue = indices.get(i).intervalData.outlierQueue;
                     if (!timeQueue.isEmpty() && flag >= timeQueue.peek() - 10 && flag <= timeQueue.peek() + 10) {
-                        String outlierStr = Math.abs(during - indices.get(i).intervalData.getMean()) / indices.get(i).intervalData.getStd()+ " " +during+ " " +rowItems[timeIndex]+ " " +outlierQueue.peek().value+ " " +outlierQueue.peek().outlierId;
-                        writer3.write(outlierStr+"\n");
+                        String outlierStr = Math.abs(during - indices.get(i).intervalData.getMean()) / indices.get(i).intervalData.getStd() + " " + during + " " + rowItems[timeIndex] + " " + outlierQueue.peek().value + " " + outlierQueue.peek().outlierId;
+                        writer3.write(outlierStr + "\n");
                     }
                     if (!timeQueue.isEmpty() && flag > timeQueue.peek() + 10) {
                         timeQueue.remove();
@@ -196,8 +190,8 @@ public class CalculateStreamIndex {
                     timeQueue = indices.get(i).speedData.timeQueue;
                     outlierQueue = indices.get(i).speedData.outlierQueue;
                     if (!timeQueue.isEmpty() && flag >= timeQueue.peek() - 10 && flag <= timeQueue.peek() + 10) {
-                        String outlierStr = Math.abs(speed - indices.get(i).speedData.getMean()) / indices.get(i).speedData.getStd()+ " " +speed+ " " +rowItems[timeIndex]+ " " +outlierQueue.peek().value+ " " +outlierQueue.peek().outlierId;
-                        writer3.write(outlierStr+"\n");
+                        String outlierStr = Math.abs(speed - indices.get(i).speedData.getMean()) / indices.get(i).speedData.getStd() + " " + speed + " " + rowItems[timeIndex] + " " + outlierQueue.peek().value + " " + outlierQueue.peek().outlierId;
+                        writer3.write(outlierStr + "\n");
                     }
                     if (!timeQueue.isEmpty() && flag > timeQueue.peek() + 10) {
                         timeQueue.remove();
@@ -212,8 +206,8 @@ public class CalculateStreamIndex {
                         timeQueue = indices.get(i).accelerationData.timeQueue;
                         outlierQueue = indices.get(i).accelerationData.outlierQueue;
                         if (!timeQueue.isEmpty() && flag >= timeQueue.peek() - 10 && flag <= timeQueue.peek() + 10) {
-                            String outlierStr = Math.abs(acceleration - indices.get(i).accelerationData.getMean()) / indices.get(i).accelerationData.getStd()+ " " +acceleration+ " " +rowItems[timeIndex]+ " " +outlierQueue.peek().value+ " " +outlierQueue.peek().outlierId;
-                            writer3.write(outlierStr+"\n");
+                            String outlierStr = Math.abs(acceleration - indices.get(i).accelerationData.getMean()) / indices.get(i).accelerationData.getStd() + " " + acceleration + " " + rowItems[timeIndex] + " " + outlierQueue.peek().value + " " + outlierQueue.peek().outlierId;
+                            writer3.write(outlierStr + "\n");
                         }
                         if (!timeQueue.isEmpty() && flag > timeQueue.peek() + 10) {
                             timeQueue.remove();
@@ -227,9 +221,7 @@ public class CalculateStreamIndex {
         }
         writer3.flush();
         writer3.close();
-        String[] indexAttrs = new String[]{"FeatureName@string", "FeatureValue@string", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
-        Header indexHeader = new Header(indexAttrs);
-        List<Row> indexRows = new ArrayList<>();
+        List<String> indexRows = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             if (i != timeIndex) {
                 String[][] dataList = new String[][]{
@@ -280,15 +272,15 @@ public class CalculateStreamIndex {
                         new String[]{"Datatype", "numeric", indexStrings[i], "accelerated", timeCol},
                 };
                 for (String[] rows : dataList) {
-                    indexRows.add(new Row(indexHeader, rows));
+                    indexRows.add(String.join(" | ", rows));
                 }
             }
         }
-        indexRows.add(new Row(indexHeader, new String[]{"Datatype", "time", timeCol, "origin", "null"}));
+        indexRows.add(String.join(" | ", new String[]{"Datatype", "time", timeCol, "origin", "null"}));
         BufferedWriter writer1 = new BufferedWriter(new FileWriter("data/index/index.txt"));
-        indexRows.forEach(x-> {
+        indexRows.forEach(x -> {
             try {
-                writer1.write(x.toString()+"\n");
+                writer1.write(x + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -296,37 +288,35 @@ public class CalculateStreamIndex {
         writer1.flush();
         writer1.close();
 
-        String[] histogramAttrs = new String[]{"xAxis@string", "yAxis@string", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
-        Header histogramHeader = new Header(histogramAttrs);
-        List<Row> histogramRows = new ArrayList<>();
+        List<String> histogramRows = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             if (i != timeIndex) {
                 Histogram histogram = indices.get(i).originData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "origin", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "origin", timeCol}));
                 }
                 histogram = indices.get(i).variationData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "variation", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "variation", timeCol}));
                 }
                 histogram = indices.get(i).intervalData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "interval", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "interval", timeCol}));
                 }
                 histogram = indices.get(i).speedData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "speed", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "speed", timeCol}));
                 }
                 histogram = indices.get(i).accelerationData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "accelerated", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "accelerated", timeCol}));
                 }
             }
         }
         BufferedWriter writer2 = new BufferedWriter(new FileWriter("data/index/histogram.txt"));
-        histogramRows.forEach(x-> {
+        histogramRows.forEach(x -> {
             try {
-                writer2.write(x.toString()+"\n");
+                writer2.write(x + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -346,6 +336,6 @@ public class CalculateStreamIndex {
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
         calculateStreamIndex.streamProcess("data/test.csv", "time");
         long endTime = System.currentTimeMillis();
-        System.out.println(endTime-startTime+"ms");
+        System.out.println(endTime - startTime + "ms");
     }
 }

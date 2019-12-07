@@ -14,13 +14,12 @@ import java.util.stream.Collectors;
  *
  * @author wangyihan
  */
-public class Row implements Serializable {
+public class Row{
 
     private final Header header;
     private Object[] values;
     private int tid;
 
-    @Deprecated
     public Row(Header header, Object[] values) {
         this(header, values, 0);
     }
@@ -34,7 +33,6 @@ public class Row implements Serializable {
         this.tid = tid;
     }
 
-    @Deprecated
     public Row(Header header, List<Object> values) {
         this(header, values, 0);
     }

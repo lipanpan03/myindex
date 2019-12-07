@@ -6,9 +6,7 @@ import org.apache.spark.sql.*;
 import org.junit.Test;
 import scala.Tuple3;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,11 +18,25 @@ public class CalculateIndexTest {
     public void testCalculateIndex() throws IOException, ParseException {
         long startTime = System.currentTimeMillis();
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
-        calculateStreamIndex.streamProcess("data/1701_2019-01.csv", "time");
+        calculateStreamIndex.streamProcess("data/shsw.csv", "time");
         long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime+"ms");
     }
 
+    @Test
+    public void testIO() throws IOException {
+        long startTime = System.currentTimeMillis();
+        BufferedReader reader1 = new BufferedReader(new FileReader("data/shsw.csv"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("data/index/testio.csv"));
+        String line1;
+        while ((line1=reader1.readLine())!=null){
+            writer.write(line1+"\n");
+        }
+        writer.flush();
+        writer.close();
+        long endTime = System.currentTimeMillis();
+        System.out.println((endTime-startTime)*3+"ms");
+    }
     private void List2Dataset() throws IOException, ParseException {
         List<Record> recordList = getRecords();
         SparkSession sparkSession = SparkSession.builder().appName("sparkTest").master("local[*]").getOrCreate();
@@ -37,7 +49,7 @@ public class CalculateIndexTest {
         result._3().show();
     }
 
-    public List<Record> getRecords() throws IOException, ParseException {
+    private List<Record> getRecords() throws IOException, ParseException {
         List<Record> recordList = new ArrayList<>();
         BufferedReader bufferedReader = new BufferedReader(new FileReader("data/empty.csv"));
         String line = null;
