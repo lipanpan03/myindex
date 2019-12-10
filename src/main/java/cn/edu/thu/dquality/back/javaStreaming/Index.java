@@ -1,7 +1,6 @@
 package cn.edu.thu.dquality.back.javaStreaming;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Index {
     private int count;
@@ -45,8 +44,7 @@ public class Index {
     }
 
     private int outlier;
-    Queue<Integer> timeQueue;
-    Queue<Outlier> outlierQueue;
+    List<Outlier> outlierQueue;
     private Histogram histogram;
 
     public Histogram getHistogram() {
@@ -61,8 +59,7 @@ public class Index {
         std = 0;
         zero = 0;
         outlier = 0;
-        timeQueue = new LinkedList<>();
-        outlierQueue = new LinkedList<>();
+        outlierQueue = new ArrayList<>();
         approximateQuantile = new ApproximateQuantile(0.3);
     }
 
@@ -70,7 +67,7 @@ public class Index {
         this.count++;
         this.max = Math.max(this.max, data);
         this.min = Math.min(this.min, data);
-        this.std = Math.sqrt((Math.pow(this.std, 2) * (this.count - 1) + (this.count - 1) / this.count * Math.pow(data - this.mean, 2)) / this.count);
+        this.std = Math.sqrt((Math.pow(this.std, 2) * (this.count - 1) + (this.count - 1) * 1.0 / this.count * Math.pow(data - this.mean, 2)) / this.count);
         this.mean += (data - this.mean) / this.count;
         this.zero += data == 0 ? 1 : 0;
         //approximateQuantile.insert(data);
@@ -85,12 +82,9 @@ public class Index {
         this.histogram = new Histogram(this.min, this.max, interval);
     }
 
-    public void updateOutlier(String neighborId, int time, double data, int sigma) {
+    public void updateOutlier(String neighborId, double data, int sigma) {
         this.outlier += Math.abs(data - this.mean) / this.std > sigma ? 1 : 0;
-        if (Math.abs(data - this.mean) / this.std > sigma) {
-            timeQueue.add(time);
-            outlierQueue.add(new Outlier(Math.abs(data - this.mean) / this.std, data, neighborId, data, neighborId));
-        }
+        outlierQueue.add(new Outlier(Math.abs(data - this.mean) / this.std, data, neighborId));
     }
 
     public void updateHistogram(double data) {

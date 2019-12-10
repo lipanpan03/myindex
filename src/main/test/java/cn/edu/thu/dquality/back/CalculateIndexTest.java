@@ -20,7 +20,7 @@ public class CalculateIndexTest {
     public void testCalculateIndex() throws IOException, ParseException {
         long startTime = System.currentTimeMillis();
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
-        calculateStreamIndex.streamProcess("data/1701_2019-01.csv", "time");
+        calculateStreamIndex.streamProcess("data/1701_2019-01_sample.csv", "time");
         long endTime = System.currentTimeMillis();
         System.out.println(endTime-startTime+"ms");
     }
