@@ -6,9 +6,7 @@ import org.apache.spark.sql.*;
 import org.junit.Test;
 import scala.Tuple3;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,9 +24,18 @@ public class CalculateIndexTest {
     }
 
     @Test
-    public void testList(){
-        List<Integer> list = new ArrayList<>();
-
+    public void testIO() throws IOException {
+        long startTime = System.currentTimeMillis();
+        BufferedReader reader1 = new BufferedReader(new FileReader("data/shsw.csv"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("data/index/testio.csv"));
+        String line1;
+        while ((line1=reader1.readLine())!=null){
+            writer.write(line1+"\n");
+        }
+        writer.flush();
+        writer.close();
+        long endTime = System.currentTimeMillis();
+        System.out.println((endTime-startTime)*3+"ms");
     }
     private void List2Dataset() throws IOException, ParseException {
         List<Record> recordList = getRecords();

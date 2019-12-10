@@ -1,8 +1,5 @@
 package cn.edu.thu.dquality.back.javaStreaming;
 
-import cn.edu.thu.dquality.back.javaStreaming.table.Header;
-import cn.edu.thu.dquality.back.javaStreaming.table.Row;
-
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -188,9 +185,7 @@ public class CalculateStreamIndex {
         }
         writer3.flush();
         writer3.close();
-        String[] indexAttrs = new String[]{"FeatureName@string", "FeatureValue@string", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
-        Header indexHeader = new Header(indexAttrs);
-        List<Row> indexRows = new ArrayList<>();
+        List<String> indexRows = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             if (i != timeIndex) {
                 String[][] dataList = new String[][]{
@@ -241,15 +236,15 @@ public class CalculateStreamIndex {
                         new String[]{"Datatype", "numeric", indexStrings[i], "accelerated", timeCol},
                 };
                 for (String[] rows : dataList) {
-                    indexRows.add(new Row(indexHeader, rows));
+                    indexRows.add(String.join(" | ", rows));
                 }
             }
         }
-        indexRows.add(new Row(indexHeader, new String[]{"Datatype", "time", timeCol, "origin", "null"}));
+        indexRows.add(String.join(" | ", new String[]{"Datatype", "time", timeCol, "origin", "null"}));
         BufferedWriter writer1 = new BufferedWriter(new FileWriter("data/index/index.txt"));
         indexRows.forEach(x -> {
             try {
-                writer1.write(x.toString() + "\n");
+                writer1.write(x + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -257,37 +252,35 @@ public class CalculateStreamIndex {
         writer1.flush();
         writer1.close();
 
-        String[] histogramAttrs = new String[]{"xAxis@string", "yAxis@string", "Attribute@string", "FeatureType@string", "TimeAttr@string"};
-        Header histogramHeader = new Header(histogramAttrs);
-        List<Row> histogramRows = new ArrayList<>();
+        List<String> histogramRows = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             if (i != timeIndex) {
                 Histogram histogram = indices.get(i).originData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "origin", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "origin", timeCol}));
                 }
                 histogram = indices.get(i).variationData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "variation", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "variation", timeCol}));
                 }
                 histogram = indices.get(i).intervalData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "interval", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "interval", timeCol}));
                 }
                 histogram = indices.get(i).speedData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "speed", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "speed", timeCol}));
                 }
                 histogram = indices.get(i).accelerationData.getHistogram();
                 for (int j = 0; j < this.INTERVAL; j++) {
-                    histogramRows.add(new Row(histogramHeader, new Object[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "accelerated", timeCol}));
+                    histogramRows.add(String.join("|", new String[]{histogram.getXAxis(j), histogram.getYAxis(j), indexStrings[i], "accelerated", timeCol}));
                 }
             }
         }
         BufferedWriter writer2 = new BufferedWriter(new FileWriter("data/index/histogram.txt"));
         histogramRows.forEach(x -> {
             try {
-                writer2.write(x.toString() + "\n");
+                writer2.write(x + "\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
