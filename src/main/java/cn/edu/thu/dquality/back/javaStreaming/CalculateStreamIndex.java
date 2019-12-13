@@ -33,7 +33,7 @@ public class CalculateStreamIndex {
         int length = indexStrings.length;
         for (int i = 0; i < length; i++)
             indices.add(new Aggregation());
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
         //speed accelerate need data
         long lastSTime = 0, flag = 0;
@@ -298,7 +298,7 @@ public class CalculateStreamIndex {
 //        System.out.println(tuple3._3().toString());
         long startTime = System.currentTimeMillis();
         CalculateStreamIndex calculateStreamIndex = new CalculateStreamIndex(10, 3);
-        calculateStreamIndex.streamProcess("data/test.csv", "time");
+        calculateStreamIndex.streamProcess("data/test1.csv", "time");
         long endTime = System.currentTimeMillis();
         System.out.println(endTime - startTime + "ms");
     }
